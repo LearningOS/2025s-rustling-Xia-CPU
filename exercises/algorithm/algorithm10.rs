@@ -2,7 +2,7 @@
 	graph
 	This problem requires you to implement a basic graph functio
 */
-// I AM NOT DONE
+
 
 use std::collections::{HashMap, HashSet};
 use std::fmt;
@@ -30,6 +30,25 @@ impl Graph for UndirectedGraph {
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
         //TODO
+        let (from, to, weight) = edge;
+        let table = self.adjacency_table_mutable();
+
+        // 确保两个节点都存在图中，不存在则插入
+        if !table.contains_key(from) {
+            table.insert(from.to_string(), Vec::new());
+        }
+        if !table.contains_key(to) {
+            table.insert(to.to_string(), Vec::new());
+        }
+
+        // 在 from 的邻接列表中添加 to 节点及权重
+        if let Some(neighbors) = table.get_mut(from) {
+            neighbors.push((to.to_string(), weight));
+        }
+        // 在 to 的邻接列表中添加 from 节点及权重
+        if let Some(neighbors) = table.get_mut(to) {
+            neighbors.push((from.to_string(), weight));
+        }
     }
 }
 pub trait Graph {
@@ -37,12 +56,37 @@ pub trait Graph {
     fn adjacency_table_mutable(&mut self) -> &mut HashMap<String, Vec<(String, i32)>>;
     fn adjacency_table(&self) -> &HashMap<String, Vec<(String, i32)>>;
     fn add_node(&mut self, node: &str) -> bool {
-        //TODO
-		true
+        if self.adjacency_table().contains_key(node) {
+            false
+        } else {
+            self.adjacency_table_mutable().insert(node.to_string(), Vec::new());
+            true
+        }
     }
     fn add_edge(&mut self, edge: (&str, &str, i32)) {
         //TODO
+        let (from, to, weight) = edge;
+        let table = self.adjacency_table_mutable();
+
+        // 确保节点存在
+        if !table.contains_key(from) {
+            table.insert(from.to_string(), Vec::new());
+        }
+        if !table.contains_key(to) {
+            table.insert(to.to_string(), Vec::new());
+        }
+
+        // 添加边 from -> to
+        if let Some(neighbors) = table.get_mut(from) {
+            neighbors.push((to.to_string(), weight));
+        }
+
+        // 添加边 to -> from
+        if let Some(neighbors) = table.get_mut(to) {
+            neighbors.push((from.to_string(), weight));
+        }
     }
+
     fn contains(&self, node: &str) -> bool {
         self.adjacency_table().get(node).is_some()
     }
